@@ -64,6 +64,7 @@ def main():
     days = booknum_libraries_days[2]
 
     current_lib_under_signup = None
+    scanned_books = set()
     signup_is_going = False
     scannable_libs = []
     current_signup_count = None
@@ -102,6 +103,12 @@ def main():
             for i in range(scan_count):
                 if books:
                     book = books.pop()
+                    while book in scanned_books:
+                        if books:
+                            book = books.pop()
+                        else:
+                            break
+                    scanned_books.add(book)
                     packed_scanned_books[lib_index].append(book)
                 else:
                     break
