@@ -59,7 +59,7 @@ def main():
     libs_packed = sorted(libs_packed_unsorted, key=lambda x: (x[0][1], -len(x[1])))
 
 
-    #print([print("index: " + str(i) + " " + str(libs[0])) for i, libs in enumerate(libs_packed)])
+    #print([print("index: " + str(i) + " " + str(libs[0]) + " real len: " + str(len(libs[1]))) for i, libs in enumerate(libs_packed)])
 
     days = booknum_libraries_days[2]
 
