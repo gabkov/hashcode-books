@@ -5,6 +5,12 @@ import sys
 import time
 
 
+INPUT_FILES_NAMES = ["a_example.txt", "b_read_on.txt", "c_incunabula.txt",
+                     "d_tough_choices.txt", "e_so_many_books.txt", "f_libraries_of_the_world.txt"]
+OUTPUT_FILE_NAMES = ["a_example_out.txt", "b_read_on_out.txt", "c_incunabula_out.txt",
+                     "d_tough_choices_out.txt", "e_so_many_books_out.txt", "f_libraries_of_the_world_out.txt"]
+FILE_NAME_INDEX = int(sys.argv[1])
+
 def write_result_into_file(packed_scanned_books, lib_order):
     with open('output/' + OUTPUT_FILE_NAMES[FILE_NAME_INDEX], 'w+') as f:
         f.write(str(len(packed_scanned_books)) + "\n")
@@ -22,21 +28,14 @@ def convert_data_to_list_of_int(data):
 def convert_data_to_set_of_int(data):
     return {int(d) for d in data.split()}
 
-
 def pack_libraries_with_books(libraries_and_books):
     libs_packed = []
     for i in range(0, len(libraries_and_books), 2):
         current_lib = libraries_and_books[i:i+2]
+        # adding the real library index to the pack for later reference
         current_lib.append(int(i / 2))
         libs_packed.append(current_lib)
     return libs_packed
-
-
-INPUT_FILES_NAMES = ["a_example.txt", "b_read_on.txt", "c_incunabula.txt",
-                     "d_tough_choices.txt", "e_so_many_books.txt", "f_libraries_of_the_world.txt"]
-OUTPUT_FILE_NAMES = ["a_example_out.txt", "b_read_on_out.txt", "c_incunabula_out.txt",
-                     "d_tough_choices_out.txt", "e_so_many_books_out.txt", "f_libraries_of_the_world_out.txt"]
-FILE_NAME_INDEX = int(sys.argv[1])
 
 
 def main():
@@ -48,6 +47,7 @@ def main():
     booknum_libraries_days = convert_data_to_list_of_int(raw_data.pop(0))
     book_scores = convert_data_to_list_of_int(raw_data.pop(0))
 
+    # the libs will be list of int the books are set of int -> sample output [[5, 3, 2], {1..5}, 0] lib, books, id
     libraries_and_books = [convert_data_to_list_of_int(data)
                            if not i % 2 else
                            convert_data_to_set_of_int(data)
@@ -55,7 +55,7 @@ def main():
 
     libs_packed_unsorted = pack_libraries_with_books(libraries_and_books)
 
-    # sort by signup time and number of books (starts with the smallest)
+    # sort by signup time (asc) and number of books (desc)
     libs_packed = sorted(libs_packed_unsorted, key=lambda x: (x[0][1], -len(x[1])))
 
 
@@ -94,9 +94,11 @@ def main():
             scan_count = lib[0][2]
             id_of_the_lib = lib[2]
 
+            # keep track of the order of the libraries for the output
             if id_of_the_lib not in lib_order:
                 lib_order.append(id_of_the_lib)
 
+            # if a new library will post books
             if len_packed_scanned_books <= lib_index:
                 packed_scanned_books.append([])
 
