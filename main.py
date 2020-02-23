@@ -10,8 +10,13 @@ def pack_libraries_with_boks(libraries_and_books):
     libs_packed = []
 
     for i in range(0, len(libraries_and_books), 2):
-        current_lib = libraries_and_books[i:i+2]
-        libs_packed.append(current_lib)
+        lib = []
+        current_lib = libraries_and_books[i]
+        books_set = set(libraries_and_books[i+1])
+        lib.append(current_lib)
+        lib.append(books_set)
+        
+        libs_packed.append(lib)
     
     for i, lib in enumerate(libs_packed):
         lib.append(i)
@@ -23,7 +28,7 @@ INPUT_FILES_NAMES = ["a_example.txt", "b_read_on.txt", "c_incunabula.txt",
                      "d_tough_choices.txt", "e_so_many_books.txt", "f_libraries_of_the_world.txt"]
 OUTPUT_FILE_NAMES = ["a_example_out.txt", "b_read_on_out.txt", "c_incunabula_out.txt",
                      "d_tough_choices_out.txt", "e_so_many_books_out.txt", "f_libraries_of_the_world_out.txt"]
-FILE_NAME_INDEX = 4
+FILE_NAME_INDEX = 3
 
 
 def main():
@@ -47,7 +52,7 @@ def main():
     days = book_num_libraries_days[2]
 
     current_lib_under_signup = None
-    scanned_books = []
+    scanned_books = set()
     signup_is_going = False
     scannable_libs = []
     current_signup_count = None
@@ -75,15 +80,15 @@ def main():
             if id_of_the_lib not in lib_order:
                 lib_order.append(id_of_the_lib)
 
-           
-            for scanned in scanned_books:
-                if scanned in books:
-                    books.remove(scanned)
+            new_books_for_lib = books - scanned_books
+
+            lib[1] = new_books_for_lib
+            books = lib[1]
 
             for i in range(scan_count):
                 if books:
-                    book = books.pop(0)
-                    scanned_books.append(book)
+                    book = books.pop()
+                    scanned_books.add(book)
                     try:
                         packed_scanned_books[lib_id].append(book)
                     except IndexError:
