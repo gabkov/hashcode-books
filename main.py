@@ -12,7 +12,7 @@ OUTPUT_FILE_NAMES = ["a_example_out.txt", "b_read_on_out.txt", "c_incunabula_out
                      "d_tough_choices_out.txt", "e_so_many_books_out.txt", "f_libraries_of_the_world_out.txt"]
 FILE_NAME_INDEX = int(sys.argv[1])
 
-PRINT_LIBS_PACKED = False
+PRINT_LIBS_PACKED = True
 
 def write_result_into_file(packed_scanned_books, lib_order):
     with open('output/' + OUTPUT_FILE_NAMES[FILE_NAME_INDEX], 'w+') as f:
@@ -83,7 +83,9 @@ def main():
     libs_packed_unsorted = pack_libraries_with_books(libraries_and_books, books_with_scores)
 
     # sort by signup time (asc) and number of books (desc)
-    libs_packed = sorted(libs_packed_unsorted, key=lambda x: (x[0][1], -len(x[1])))
+    libs_packed = sorted(libs_packed_unsorted, key=lambda x: (x[0][1], -(x[0][0])))
+
+    #libs_packed = sorted(libs_packed_unsorted, key=lambda x: x[0][1], reverse=False)
 
     if PRINT_LIBS_PACKED:
         [print("i: " + str(i) + " " + str(libs[0]) + " average score: " + str(libs[3])) for i, libs in enumerate(libs_packed[:150])]
@@ -97,9 +99,13 @@ def main():
     packed_scanned_books = []
     lib_order = []
 
+    AVG_BOOK_NUM = int(booknum_libraries_days[0] / booknum_libraries_days[1])
+
     for day in range(days):
         if not signup_is_going and libs_packed:
             current_lib_under_signup = libs_packed.pop(0)
+            while current_lib_under_signup[0][0] < AVG_BOOK_NUM:
+                current_lib_under_signup = libs_packed.pop(0)
             signup_is_going = True
             current_signup_count = current_lib_under_signup[0][1]
 
