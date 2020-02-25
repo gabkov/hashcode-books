@@ -12,6 +12,7 @@ OUTPUT_FILE_NAMES = ["a_example_out.txt", "b_read_on_out.txt", "c_incunabula_out
                      "d_tough_choices_out.txt", "e_so_many_books_out.txt", "f_libraries_of_the_world_out.txt"]
 FILE_NAME_INDEX = int(sys.argv[1])
 
+PRINT_LIBS_PACKED = False
 
 def write_result_into_file(packed_scanned_books, lib_order):
     with open('output/' + OUTPUT_FILE_NAMES[FILE_NAME_INDEX], 'w+') as f:
@@ -47,24 +48,21 @@ def pack_libraries_with_books(libraries_and_books, books_with_scores):
 def pair_books_with_score(book_scores, books):
     score_pairs = {}
     books_without_duplicates = list(dict.fromkeys(books))
-    #print("Score len: " + str(len(book_scores)))
-    #print("Books len: " + str(len(books_without_duplicates)))
 
     for i in range(len(books_without_duplicates)):
         score_pairs[books_without_duplicates[i]] = book_scores[i]
 
-    #score_index = 0
-    #for i in range(len(books)):
-     #   if not books[i] in score_pairs:
-      #      score_pairs[books[i]] = book_scores[score_index]
-       #     score_index += 1
-
-    #print(book_scores)
-    #print(books_without_duplicates)
-
     return score_pairs
 
-
+def print_result_details(packed_scanned_books, books_with_scores):
+    point = 0
+    book_count = 0
+    for books in packed_scanned_books:
+        for book in books:
+            book_count += 1
+            point += books_with_scores[book]
+    print("Score: " + str(point))
+    print("Number of books shipped: " + str(book_count))
 
 def main():
     raw_data = []
@@ -74,11 +72,11 @@ def main():
 
     booknum_libraries_days = convert_data_to_list_of_int(raw_data.pop(0))
     book_scores = convert_data_to_list_of_int(raw_data.pop(0))
-
+    
     libraries_and_books = [convert_data_to_list_of_int(data) for i, data in enumerate(raw_data)]
-
+    
     books = list(chain.from_iterable(libraries_and_books[1::2]))
-
+    
     books_with_scores = pair_books_with_score(book_scores, books)
     
     # the libs and books will be list of int -> sample output [[5, 3, 2], [1..5], 0, 321] lib, books, id, avg_point
@@ -87,12 +85,10 @@ def main():
     # sort by signup time (asc) and number of books (desc)
     libs_packed = sorted(libs_packed_unsorted, key=lambda x: (x[0][1], -len(x[1])))
 
-    #libs_packed = sorted(libs_packed_unsorted, key=lambda x: (x[0][1], -x[3]))
-
-    #print([print("i: " + str(i) + " " + str(libs[0]) + " average score: " + str(libs[3])) for i, libs in enumerate(libs_packed)])
+    if PRINT_LIBS_PACKED:
+        print([print("i: " + str(i) + " " + str(libs[0]) + " average score: " + str(libs[3])) for i, libs in enumerate(libs_packed[:150])])
 
     days = booknum_libraries_days[2]
-
     current_lib_under_signup = None
     scanned_books = set()
     signup_is_going = False
@@ -102,16 +98,18 @@ def main():
     lib_order = []
 
     for day in range(days):
-        if not signup_is_going:
+        if not signup_is_going and libs_packed:
             current_lib_under_signup = libs_packed.pop(0)
             signup_is_going = True
             current_signup_count = current_lib_under_signup[0][1]
 
         if(current_signup_count > 0):
             current_signup_count -= 1
-        else:
+       
+        if current_signup_count == 0:
             signup_is_going = False
-            scannable_libs.append(current_lib_under_signup)
+            if current_lib_under_signup is not None:
+                scannable_libs.append(current_lib_under_signup)
             current_lib_under_signup = None
 
         len_packed_scanned_books = len(packed_scanned_books)
@@ -145,14 +143,7 @@ def main():
                 else:
                     break
 
-    point = 0
-    book_count = 0
-    for books in packed_scanned_books:
-        for book in books:
-            book_count += 1
-            point += books_with_scores[book]
-    print("Score: " + str(point))
-    print("Number of books shipped: " + str(book_count))
+    print_result_details(packed_scanned_books, books_with_scores)
 
     write_result_into_file(packed_scanned_books, lib_order)
 
