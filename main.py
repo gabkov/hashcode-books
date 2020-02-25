@@ -86,7 +86,7 @@ def main():
     libs_packed = sorted(libs_packed_unsorted, key=lambda x: (x[0][1], -len(x[1])))
 
     if PRINT_LIBS_PACKED:
-        print([print("i: " + str(i) + " " + str(libs[0]) + " average score: " + str(libs[3])) for i, libs in enumerate(libs_packed[:150])])
+        [print("i: " + str(i) + " " + str(libs[0]) + " average score: " + str(libs[3])) for i, libs in enumerate(libs_packed[:150])]
 
     days = booknum_libraries_days[2]
     current_lib_under_signup = None
